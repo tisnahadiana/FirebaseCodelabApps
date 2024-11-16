@@ -31,7 +31,7 @@ fun MainApp() {
             composable(Constant.HOME) {
                 HomeScreen(navController)
             }
-
         }
+
     }
 }

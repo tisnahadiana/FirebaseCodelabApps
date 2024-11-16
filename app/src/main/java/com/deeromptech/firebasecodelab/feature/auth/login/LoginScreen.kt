@@ -57,6 +57,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -214,132 +215,17 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = koinVi
 
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, name = "Login Screen Preview")
 @Composable
 fun PreviewLoginScreen() {
+    val navController = rememberNavController()
+    val fakeViewModel = LoginViewModel()
 
-    var email by remember {
-        mutableStateOf("")
-    }
-
-    var password by remember {
-        mutableStateOf("")
-    }
-    val context = LocalContext.current
-
-    var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
-    ) {
-        Text(
-            text = "Sign-In",
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Please sign in to continue",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { newValue ->
-                email = newValue
-            },
-            placeholder = {
-                Text(text = "E-mail")
-            },
-            leadingIcon = {
-                Icon(imageVector = Icons.Rounded.Email, contentDescription = "Email")
-            },
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { newValue ->
-                password = newValue
-            },
-            placeholder = {
-                Text(text = "Password")
-            },
-            leadingIcon = {
-                Icon(imageVector = Icons.Rounded.Lock, contentDescription = "Email")
-            },
-            visualTransformation = PasswordVisualTransformation(),
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        if (errorMessage.isNotEmpty()) {
-            Text(
-                text = errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Button(
-            onClick = {
-
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(
-                text = "Sign-in",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(text = "or continue with")
-        }
-
-        OutlinedButton(
-            onClick = {
-
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-        ) {
-            Image(
-                painter = painterResource(R.drawable.google),
-                contentDescription = null,
-                modifier = Modifier.size(36.dp)
-            )
-
-            Spacer(modifier = Modifier.width(6.dp))
-
-            Text(
-                text = "Sign-in with Google",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
-
+    FirebaseAuthTheme {
+        LoginScreen(navController = navController, viewModel = fakeViewModel)
     }
 }
+
+
+
 
