@@ -7,6 +7,8 @@ import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.deeromptech.firebasecodelab.R
+import com.deeromptech.firebasecodelab.firebase.FirebaseDb
+import com.deeromptech.firebasecodelab.model.user.User
 import com.deeromptech.firebasecodelab.utils.AuthResponse
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
@@ -21,25 +23,21 @@ import java.util.UUID
 
 class LoginViewModel : ViewModel() {
 
+    private val firebaseDatabase: FirebaseDb by lazy { FirebaseDb() }
+
     private val _state = MutableStateFlow<SignInState>(SignInState.Nothing)
     val state = _state.asStateFlow()
 
     fun signIn(email: String, password: String) {
         _state.value = SignInState.Loading
         // Firebase signIn
-        FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    task.result.user?.let {
-                        _state.value = SignInState.Success
-                        return@addOnCompleteListener
-                    }
-                    _state.value = SignInState.Error
-
-                } else {
-                    _state.value = SignInState.Error
-                }
+        firebaseDatabase.loginWithEmailAndPassword(email, password) { success, error ->
+            if (success) {
+                _state.value = SignInState.Success
+            } else {
+                _state.value = SignInState.Error
             }
+        }
     }
 
     fun signInWithGoogle(context: Context) {
@@ -78,11 +76,38 @@ class LoginViewModel : ViewModel() {
                             FirebaseAuth.getInstance().signInWithCredential(firebaseCredential)
                                 .addOnCompleteListener {
                                     if (it.isSuccessful) {
-                                        it.result.user?.let {
-                                            _state.value = SignInState.Success
-                                            return@addOnCompleteListener
+                                        val user = it.result.user
+                                        if (user != null) {
+                                            firebaseDatabase.checkUserByEmail(user.email!!) { error, exists ->
+                                                if (error != null) {
+                                                    _state.value = SignInState.Error
+                                                    return@checkUserByEmail
+                                                }
+
+                                                if (exists == true) {
+                                                    _state.value = SignInState.Success
+                                                } else {
+                                                    // Create new user
+                                                    val newUser = User(
+                                                        name = user.displayName.orEmpty(),
+                                                        email = user.email.orEmpty(),
+                                                        phone = user.phoneNumber.orEmpty(),
+                                                        imagePath = user.photoUrl?.toString().orEmpty()
+                                                    )
+
+                                                    firebaseDatabase.saveUserInformation(user.uid, newUser)
+                                                        .addOnSuccessListener {
+                                                            _state.value = SignInState.Success
+                                                        }
+                                                        .addOnFailureListener {
+                                                            _state.value = SignInState.Error
+                                                        }
+
+                                                }
+                                            }
+                                        } else {
+                                            _state.value = SignInState.Error
                                         }
-                                        _state.value = SignInState.Error
                                     } else {
                                         _state.value = SignInState.Error
                                     }

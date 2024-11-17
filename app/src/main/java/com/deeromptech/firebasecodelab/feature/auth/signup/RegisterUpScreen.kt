@@ -50,7 +50,6 @@ import org.koin.androidx.compose.koinViewModel
 fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = koinViewModel()){
 
     val uiState = viewModel.state.collectAsState()
-
     var name by remember {
         mutableStateOf("")
     }
@@ -69,6 +68,10 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = 
         when (uiState.value) {
             is SignUpState.Success -> {
                 navController.navigate(Constant.LOGIN)
+            }
+
+            is SignUpState.SuccessGoogle -> {
+                navController.navigate(Constant.HOME)
             }
 
             is SignUpState.Error -> {
@@ -161,7 +164,7 @@ fun RegisterScreen(navController: NavController, viewModel: RegisterViewModel = 
 
                 OutlinedButton(
                     onClick = {
-
+                        viewModel.signUpWithGoogle(context)
                     },
                     modifier = Modifier
                         .fillMaxWidth()

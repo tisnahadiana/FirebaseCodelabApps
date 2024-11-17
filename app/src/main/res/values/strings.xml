@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">FirebaseAuth</string>
+    <string name="image">image</string>
+    <string name="label_menu_profile">Profil</string>
+    <string name="action_forgot_pass">Lupa Password?</string>
+    <string name="label_menu_logout">Keluar</string>
     <string name="web_client_id">124470282502-1ra7nfrb6ujv5grdnaioof3ie471qla0.apps.googleusercontent.com</string>
 </resources>
